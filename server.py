@@ -1,5 +1,6 @@
 #Basic web server with python -Burak "paradass" Görez
 
+import os
 import socket
 import argparse
 
@@ -39,8 +40,8 @@ class Server():
             conn.close()
 
     def start(self):
-        parser = argparse.ArgumentParser(description="#Socket web server by paradass",add_help=False)
-        parser.add_argument("-r","--route",type=str,required=True)
+        parser = argparse.ArgumentParser(description="Socket web server by paradass",add_help=False)
+        parser.add_argument("-r","--route",type=str,default=os.path.dirname(os.path.abspath(__file__)),required=False)
         parser.add_argument("-p","--port",type=int,default=80,required=False)
 
         args = parser.parse_args()

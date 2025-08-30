@@ -3,6 +3,7 @@
 import os
 import socket
 import argparse
+import threading
 
 class Server():
     @staticmethod
@@ -11,33 +12,35 @@ class Server():
         try:
             if url == "/":
                 url += "index.html"
-            file = open(route + url,"r")
-            return head + file.read()
+            with open(route + url,"r") as file:
+                return head + file.read()
         except:
             return head + "<h1>404 Error!</h1>"
 
+    def serv(self,route:str,conn:socket.socket,adr):
+        request:str = conn.recv(1024).decode()
+        request = request.split("\n")[0]
+        url:str = request.split(" ")[1]
+
+        if "favicon.ico" in url:
+            return
+        else:
+            print(f"\033[31mConn:\033[0m{adr}")
+            print(f"\033[34mRequest:\033[0m{request}")
+            print(f"\033[32mUrl:\033[0m{url}\n")
+            conn.sendall(self.return_page(route,url).encode())
+        conn.close()
+        
     def listen(self,route:str,port:int):
         server_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         server_socket.bind(("",port))
         server_socket.listen()
-
-        print(f"Server listening on rout:{route} port:{port}\n")
+        print(f"\033[33mServer listening on rout:{route} port:{port}\033[0m\n")
 
         while True:
             conn,adr = server_socket.accept()
-            print(f"Conn:{adr}")
-
-            request:str = conn.recv(1024).decode()
-            print(f"Request:{request}")
-
-            try:
-                url:str = request.split(" ")[1]
-                print(f"Url:{url}\n")
-
-                conn.sendall(self.return_page(route,url).encode())
-            except:
-                pass
-            conn.close()
+            thread = threading.Thread(target=self.serv,args=(route,conn,adr))
+            thread.start()
 
     def start(self):
         parser = argparse.ArgumentParser(description="Socket web server by paradass",add_help=False)

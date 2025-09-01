@@ -16,6 +16,15 @@ class Server():
                 return head + file.read()
         except:
             return head + "<h1>404 Error!</h1>"
+    
+    @staticmethod
+    def return_icon(route:str):
+        head = "HTTP/1.1 200 OK\r\nContent-Type: image/x-icon\r\n\r\n"
+        try:
+            with open(route+"/favicon.ico","rb") as file:
+                return head.encode() + file.read()
+        except:
+            return None
 
     def serv(self,route:str,conn:socket.socket,adr):
         request:str = conn.recv(1024).decode()
@@ -23,7 +32,9 @@ class Server():
         url:str = request.split(" ")[1]
 
         if "favicon.ico" in url:
-            return
+            result = self.return_icon(route)
+            if result != None:
+                conn.sendall(result)
         else:
             print(f"\033[31mConn:\033[0m{adr}")
             print(f"\033[34mRequest:\033[0m{request}")

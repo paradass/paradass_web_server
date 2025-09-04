@@ -1,4 +1,4 @@
-#Basic web server with python -Burak "paradass" Görez
+#Basic web server with python by Burak "paradass" Görez
 
 import os
 import socket
